@@ -21,4 +21,5 @@ function isPalindrome(s)
     return true;
   };
 
-module.exports = isPalindrome;
+var a=isPalindrome('A man, a plan, a canal. Panama')
+console.log(a)
