@@ -21,5 +21,3 @@ function isPalindrome(s)
     return true;
   };
 
-var a=isPalindrome('A man, a plan, a canal. Panama')
-console.log(a)
