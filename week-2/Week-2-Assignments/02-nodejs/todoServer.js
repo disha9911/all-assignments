@@ -39,11 +39,81 @@
 
   Testing the server - run `npm run test-todoServer` command in terminal
  */
-const express = require('express');
-const bodyParser = require('body-parser');
+  const express = require('express');
+  const bodyParser = require('body-parser');
+  
+  const app = express();
+  const port = 3000;
+  let todos = [];
+  
+  app.use(bodyParser.json());
 
-const app = express();
+  function getTodobyId(req, res) {
+    var id = parseInt(req.params.id);
+    var items = todos.find(t => t.id === id);
+    if (items) {
+      items.title = req.body.title;
+      items.completed = req.body.completed;
+      res.status(200).json(items);
+    } else {
+      res.status(404).send("Item not found");
+    }
+  }
+  
+  
+  function createnewTodo(req, res) {
+    const newTodo = {
+      id: Math.floor(Math.random() * 10000),
+      title: req.body.title,
+      description: req.body.description,
+      completed: req.body.completed
+    };
+    todos.push(newTodo);
+    res.status(201).json(newTodo);
+  }
+  
+  function updateTodo(req, res) {
+    var id = parseInt(req.params.id);
+    var validateId = todos.find(t => t.id === id);
+    if (validateId) {
+      validateId.title = req.body.title;
+      validateId.completed = req.body.completed;
+      res.status(200).json(validateId);
+    } else {
+      res.status(404).send("Item not found");
+    }
+  }
+  
+  function deleteTodo(req, res) {
+    var id = parseInt(req.params.id);
+    var validateId = todos.find(t => t.id === id);
+    if (validateId) {
+      todos.splice(todos.indexOf(validateId), 1);
+      res.status(200).send("Successfully removed Todo");
+    } else {
+      res.status(404).send("Item not found");
+    }
+  }
+  
+  app.get('/todos', (req, res) => {
+    res.json(todos);
+  });
+  
+  app.get('/todos/:id', getTodobyId);
+  
+  app.post('/todos', createnewTodo);
+  
+  app.put('/todos/:id', updateTodo);
+  
+  app.delete('/todos/:id', deleteTodo);
+  
+  app.use((req, res, next) => {
+    res.status(404).send();
+  });
+  
+  function started() {
+    console.log(`Example app running on port ${port}`);
+  }
+  app.listen(port, started);
+  
 
-app.use(bodyParser.json());
-
-module.exports = app;
