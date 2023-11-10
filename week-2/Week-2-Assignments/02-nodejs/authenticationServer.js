@@ -30,8 +30,69 @@
  */
 
 const express = require("express")
-const PORT = 3000;
+const bodyParser = require('body-parser');
+const port = 3000;
 const app = express();
-// write your logic here, DONT WRITE app.listen(3000) when you're running tests, the tests will automatically start the server
 
-module.exports = app;
+app.use(bodyParser.json());
+const User=[]
+
+function UserSignup(req,res){
+   const NewUser={
+    Id:Math.floor(Math.random()*10000),
+    Username:req.body.Username,
+    Password:req.body.Password,
+    Name:req.body.Name
+   }
+   if(User.find(item=>item.Username===NewUser.Username)){
+    res.status(400).send("Username already exist")
+   }
+   else
+   {  
+    User.push(NewUser)
+
+    res.status(200).json(NewUser)
+   }
+}
+
+function UserLogin(req,res){
+  const UserItem=User.find(item=>item.Username===req.body.Username)
+  if(UserItem){
+    if(UserItem.Password===req.body.Password)
+     res.status(200).send("You have been logged in successfully")
+    else
+    res.status(401).send("Wrong Password")
+    
+}
+  else
+    res.status(401).send("User doesn't exist!")
+
+}
+
+function Data(req, res) {
+  const username = req.headers.username;  
+  const password = req.headers.password;  
+  console.log(req.headers)
+
+
+  const user = User.find(user => user.Username === username && user.Password === password);
+  console.log(user)
+  if (user) {
+    res.status(200).json(User);
+  } else {
+    res.status(401).send("Unauthorized access");
+  }
+}
+
+
+app.post('/signup',UserSignup)
+app.post('/login',UserLogin)
+app.get('/data',Data)
+app.use((req, res, next) => {
+  res.status(404).send();
+});
+
+function started() {
+  console.log(`Example app running on port ${port}`);
+}
+app.listen(port, started);
