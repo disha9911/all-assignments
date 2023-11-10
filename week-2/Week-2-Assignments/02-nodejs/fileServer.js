@@ -16,10 +16,47 @@
 
     Testing the server - run `npm run test-fileServer` command in terminal
  */
-const express = require('express');
-const fs = require('fs');
-const path = require('path');
-const app = express();
+    const express=require('express')
+    const fs=require('fs').promises
+    const app=express()
+    const path = require('path');
+    const port =3000
+
+    const fileDirectory=path.join(__dirname,'./files/')
+
+    app.get('/files',async(req,res)=>{
+      try{
+        const fileName=await fs.readdir(fileDirectory)
+        res.json(fileName)
+      }
+      catch(err){
+        console.log(err)
+        res.status(404).send("an error occured")
+      }
+    })
+
+    app.get('/files/:fileName',async(req,res)=>{
+      const {fileName}=req.params;
+      const filePath=path.join(fileDirectory,fileName)
+      try{
+      const fileContent=await fs.readFile(filePath,'utf8')
+      res.status(200).send(fileContent)
+      }
+      catch(err){
+        console.log(err)
+        if(err.code=='ENOENT')
+         res.status(404).json("File not found")
+        else
+         res.status(404).json("An error occured")
+      }
+    })
+
+    app.use((req, res) => {
+      res.status(404).send('Not Found');
+    });
+    
+    app.listen(port, () => {
+      console.log(`Server is running at http://localhost:${port}`);
+    });
 
 
-module.exports = app;
